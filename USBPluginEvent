@@ -1,0 +1,5 @@
+// Find USB plug events (when is a USB devcie plugged in)
+dataset = xdr_data
+| filter event_type = DEVICE and event_sub_type = DEVICE_PLUG 
+| fields agent_hostname, action_device_usb_product_name, action_device_usb_vendor_name 
+| join type=left (dataset = endpoints | fields endpoint_name, group_names, tags) as subqueryone subqueryone.endpoint_name = agent_hostname
