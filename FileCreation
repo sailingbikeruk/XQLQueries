@@ -1,4 +1,4 @@
-# Find file creation events and times
+// Find file creation events and times
 dataset = xdr_data
 | filter agent_hostname = "<hostname>"
 | filter event_type = FILE
