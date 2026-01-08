@@ -1,0 +1,6 @@
+# Find file creation events and times
+dataset = xdr_data
+| filter agent_hostname = "<hostname>"
+| filter event_type = FILE
+| filter event_sub_type = FILE_CREATE_NEW
+| filter action_file_name = "program.exe"
