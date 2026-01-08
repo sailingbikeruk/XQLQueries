@@ -1,0 +1,7 @@
+# Look for file download quarantine events in google chrome on a specific host
+
+dataset = xdr_data
+| filter agent_hostname = "<hostname>"
+| filter event_type = PROCESS
+| filter actor_process_image_name = "chrome.exe"
+| filter actor_process_command_line contains "quarantine"
