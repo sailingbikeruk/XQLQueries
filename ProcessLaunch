@@ -1,0 +1,6 @@
+# look for processes being launched on a specific host, change process names/text as required
+dataset = xdr_data
+| filter agent_hostname = "<hostname>"
+| filter event_type = PROCESS
+| filter action_process_image_name contains "Setup.exe" or action_process_image_name = "SetupClient.exe"
+ 
