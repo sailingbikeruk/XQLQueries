@@ -1,4 +1,4 @@
-# Look for file download quarantine events in google chrome on a specific host
+// Look for file download quarantine events in google chrome on a specific host
 
 dataset = xdr_data
 | filter agent_hostname = "<hostname>"
