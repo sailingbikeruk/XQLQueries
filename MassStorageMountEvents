@@ -1,0 +1,12 @@
+// Find Mass Storage Device Mounts
+dataset = xdr_data 
+| filter event_type = ENUM.MOUNT 
+| alter mount_point = action_mount_device_info -> storage_device_mount_point 
+| alter subject_username=json_extract(action_evtlog_data_fields, "$.SubjectUserName") 
+| alter storage_device_class_name = action_mount_device_info -> storage_device_class_name 
+| alter vendor_id = action_mount_device_info -> storage_device_vendor_id 
+| alter product_id = action_mount_device_info -> storage_device_product_id 
+| alter storage_device_drive_type = action_mount_device_info -> storage_device_drive_type 
+| join type=left (dataset = endpoints | fields endpoint_name, group_names) as subqueryone subqueryone.endpoint_name = agent_hostname 
+| fields _time, subject_username, agent_hostname, action_mount_device_info, mount_point, storage_device_*, vendor_id, product_id, agent_os_type, agent_os_sub_type, action_evtlog_data_fields, group_names 
+| filter storage_device_drive_type = "2"
