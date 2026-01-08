@@ -1,4 +1,4 @@
-# look for processes being launched on a specific host, change process names/text as required
+// look for processes being launched on a specific host, change process names/text as required
 dataset = xdr_data
 | filter agent_hostname = "<hostname>"
 | filter event_type = PROCESS
