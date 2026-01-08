@@ -1,0 +1,8 @@
+// Look for file downloads from browsers
+dataset = xdr_data
+| filter agent_hostname = "<hostname>"
+| filter event_type = FILE
+| filter event_sub_type = FILE_CREATE_NEW or event_sub_type = FILE_RENAME
+// Look for browser processes creating the file
+| filter actor_process_image_name in ("chrome.exe", "msedge.exe", "firefox.exe", "brave.exe") // amend browser list as necessary
+| sort asc _time
