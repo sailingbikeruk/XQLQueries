@@ -1,7 +1,7 @@
 // Find event ID in XQL from an individual host
 dataset = xdr_data 
 | filter agent_hostname = "<hostname>"
-| filter action_evtlog_event_id in (4624, 4625) //hange the event ID as necessary
+| filter action_evtlog_event_id in (4624, 4625) //change the event ID as necessary
 | alter LogonType = json_extract_scalar(action_evtlog_data_fields , "$.LogonType")
 | filter LogonType in ("10")
 | alter IpAddress = json_extract_scalar(action_evtlog_data_fields , "$.IpAddress")
