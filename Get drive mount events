@@ -1,0 +1,41 @@
+// get drive mount events
+
+config case_sensitive = false
+// ---- OS drive mounts (removable media)
+| dataset = xdr_data
+| filter event_sub_type = ENUM.MOUNT_DRIVE_MOUNT
+| fields _time, agent_hostname as hostname, action_mount_device_info as mount_info
+| alter
+    serial_number = json_extract(mount_info, "$.storage_device_serial_number"),
+    drive_type    = json_extract(mount_info, "$.storage_device_drive_type"),
+    vendor_id     = json_extract(mount_info, "$.storage_device_vendor_id"),
+    product_id    = json_extract(mount_info, "$.storage_device_product_id"),
+    class_name    = json_extract(mount_info, "$.storage_device_class_name"),
+    bus_type      = json_extract(mount_info, "$.storage_device_bus_type"),
+    volume_name   = json_extract(mount_info, "$.storage_device_volume_name"),
+    mount_point   = json_extract(mount_info, "$.mount_point")
+| filter drive_type = "2"   // 2 = Removable media
+// ---- Join latest successful logon per host (Event ID 4624)
+| join type = left (
+    dataset = xdr_data
+    | filter event_type = ENUM.EVENT_LOG
+      and action_evtlog_event_id = 4624
+      and action_evtlog_description = "An account was successfully logged on."
+    | fields agent_hostname, _time, action_evtlog_data_fields as aedf
+    | alter last_logged_on_user = json_extract(aedf, "$.TargetUserName")
+    | sort desc _time 
+    | dedup agent_hostname
+) as lastlog lastlog.agent_hostname = hostname
+| fields
+    _time,
+    hostname,
+    last_logged_on_user,
+    class_name,
+    vendor_id,
+    product_id,
+    serial_number,
+    bus_type,
+       volume_name,
+    mount_point
+
+
