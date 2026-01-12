@@ -1,0 +1,68 @@
+// get USB Mass Storage Device Events
+
+config case_sensitive = false
+// ---- USB Mass Storage plug events
+| preset = device_control
+| filter event_sub_type = ENUM.DEVICE_PLUG
+| filter (
+    action_device_class_name contains "USB Mass Storage"
+    or action_device_class_name contains "Mass Storage"
+    or action_device_class_name contains "Disk"
+    or action_device_class_name contains "Storage"
+    or action_device_class_guid in (
+        "{4D36E967-E325-11CE-BFC1-08002BE10318}" // Disk drives (Windows)
+    )
+)
+// Keep useful device fields
+| fields
+    _time,
+    agent_hostname,
+    action_device_usb_vendor_name,
+    action_device_usb_product_name,
+    action_device_usb_vendor_id,
+    action_device_usb_product_id,
+    action_device_usb_serial_number,
+    action_device_class_name,
+    action_device_class_guid
+// ---- Join latest successful logon per host (Event ID 4624)
+| join type = left (
+    dataset = xdr_data
+    | filter event_type = ENUM.EVENT_LOG
+      and action_evtlog_event_id = 4624
+      and action_evtlog_description = "An account was successfully logged on."
+    | fields agent_hostname, _time, action_evtlog_data_fields as aedf
+    | alter last_logged_on_user = json_extract(aedf, "$.TargetUserName")
+    | dedup agent_hostname
+) as lastlog lastlog.agent_hostname = agent_hostname
+| fields
+    _time,
+    agent_hostname,
+    last_logged_on_user ,
+    action_device_usb_vendor_name,
+    action_device_usb_product_name,
+    action_device_usb_vendor_id,
+    action_device_usb_product_id,
+    action_device_usb_serial_number,
+    action_device_class_name,
+    action_device_class_guid
+    
+// ---- (3) Join endpoint Tags and Group Names
+| join type = left (
+    dataset = endpoints
+    | fields endpoint_name, tags, group_names
+) as ep ep.endpoint_name = hostname
+
+// ---- Final projection
+| fields
+    _time,
+    hostname,
+    last_logged_on_user,
+    tags,
+    group_names,
+    class_name,
+    vendor_id,
+    product_id,
+    serial_number,
+    bus_type,
+    volume_name,
+    mount_point
