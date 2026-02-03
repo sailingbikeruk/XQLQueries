@@ -1,0 +1,5 @@
+preset = host_inventory_applications 
+| filter application_name contains "PUT APPLICATION NAME HERE"
+// | filter version = "8.8.*" or version = "8.9.0" // <-- FOR SPECIFIC VERSION AMEND THE VERSION NUMBERS
+| filter version != "8.9.1" // <-- FOR "ALL VERSIONS EXCEPT" USER LOGICAL COMPARATORS 
+| join type = left (dataset = endpoints) as endpoints endpoint_id = endpoints.endpoint_id
