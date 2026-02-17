@@ -1,0 +1,8 @@
+// I *THINK* that this is counting the events using the metadata logs 
+// and showing a number of log events by by vendor, product, type and vm device name
+// it definetly returns a count that looks vaugely correct, but I havent been able to verify the accuracy of the count
+// please use it with discretion.
+
+dataset = metrics_source 
+| filter _broker_device_name != ""
+| comp approx_count(total_event_count) by _vendor ,_product ,_collector_type, _collector_name  , _broker_device_name
