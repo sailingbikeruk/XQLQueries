@@ -1,0 +1,11 @@
+// Find SPN in use in XQL from a list of hosts and filter by known SPN
+// not working but here for reference
+dataset = xdr_data 
+| filter agent_hostname in ("<hostname1>","hostname2>")
+| filter action_evtlog_event_id in (4769) //change the event ID as necessary
+| alter SPN = json_extract_scalar(action_evtlog_data_fields , "$.ServiceName")
+| filter SPN in ("<spn names speerated by commas>","<like this>","<and this>")
+| alter IpAddress = json_extract_scalar(action_evtlog_data_fields , "$.IpAddress")
+| alter TargetUserName = json_extract_scalar(action_evtlog_data_fields , "$.TargetUserName")
+| fields agent_hostname, action_evtlog_event_id, SPN, TargetUserName, IpAddress, action_evtlog_data_fields
+| sort desc _time
