@@ -3,6 +3,7 @@
 
 dataset = metrics_source 
 | filter _broker_device_name != "" // get all named broker vms 
+//| filter _vendor = "<insert configured vendor name - run with this commented out to find the correct name>"
 | comp approx_count(_time) as metadata_logs, sum(total_size_bytes) as product_log_bytes,  sum(total_event_count) as product_log_event_count by _vendor ,_product ,_collector_type, _collector_name  , _broker_device_name 
 | alter product_log_megabytes = divide(product_log_bytes,1000000)
 | alter product_log_gigabytes = divide(round(product_log_megabytes),1000) // Rounded to 3 decimals. (May round down to zero)
