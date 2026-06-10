@@ -1,0 +1,23 @@
+// Host Inventory export of hardware and OS details, mapped to endpoints and tags 
+
+dataset = host_inventory
+// dedup to remove duplicate host_investory reports
+| dedup agent_id by desc _time 
+| join type=left (
+    dataset = endpoints
+    |alter endpoint_tags_all = 
+        arraydistinct(
+            arrayconcat(
+                json_extract_scalar_array(to_json_string(tags), "$.endpoint_tags"),
+                json_extract_scalar_array(to_json_string(tags), "$.server_tags")
+                )
+            )
+    )
+    as subqueryone subqueryone.endpoint_id = agent_id 
+// remove newline characters
+| alter hardware_uuid_one_line = replex(hardware_uuid,"\n","    ")
+| alter model_one_line = replex(model ,"\n","    ")
+| alter manufacturer_one_line = replex(manufacturer ,"\n","    ")
+// show required fields
+| fields agent_id, endpoint_id, host_name, endpoint_name, manufacturer_one_line, model_one_line, system_type, physical_memory, swap_memory, chassis_sku_number, os_caption, processor_architecture, major_version,  minor_version, build_number, product_type, cpus, hardware_uuid_one_line, serial_number, endpoint_type, platform, ip_address, agent_domain, endpoint_alias, group_names,endpoint_tags_all, _time
+
