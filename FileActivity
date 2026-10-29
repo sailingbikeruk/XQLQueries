@@ -1,0 +1,30 @@
+// Search for file activity.
+// use one of the following event sub types
+//Constant                               |  Applies to      |   Value   |   Meaning
+//ENUM.FILE_CREATE_NEW                   |File              |File created
+//ENUM.FILE_OPEN                         |File              |File opened or read
+//ENUM.FILE_WRITE                        |File              |File written
+//ENUM.FILE_RENAME                       |File              |File renamed or moved
+//ENUM.FILE_REMOVE                       |File              |File deleted
+//ENUM.FILE_CHANGE_OWNER                 |File              |File owner changed
+//ENUM.FILE_SET_SECURITY_DESCRIPTOR      |File              |Permissions (ACL) changed
+//ENUM.FILE_SET_ATTRIBUTE                |File              |Attributes changed, e.g. hidden or read-only
+//ENUM.FILE_DELETE_EXT_ATTRIBUTE         |File              |Extended attribute removed
+//ENUM.FILE_IMPERSONATE_PIPE             |Named pipe        |Named-pipe impersonation
+//ENUM.FILE_DIR_CREATE                   |Directory         |Folder created
+//ENUM.FILE_DIR_WRITE                    |Directory         |Folder modified
+//ENUM.FILE_DIR_RENAME                   |Directory         |Folder renamed or moved
+//ENUM.FILE_DIR_REMOVE                   |Directory         |Folder deleted
+//ENUM.FILE_DIR_CHANGE_OWNER             |Directory         |Folder owner changed
+//ENUM.FILE_DIR_SET_SECURITY_DESCRIPTOR  |Directory         |Folder permissions changed
+
+// *** NOTE *** this is not a defintive list of subtypes,. its just the ones Ive used/seen consult the auto complete or XQL documentation
+
+
+dataset = xdr_data 
+| filter  event_type =ENUM.FILE 
+| filter event_sub_type = ENUM.FILE_CREATE_NEW  
+| filter agent_hostname = "MGT01" 
+| filter action_file_name contains "ilowfp"
+| fields agent_hostname, action_file_path, action_file_name, causality_actor_process_command_line, causality_actor_process_image_name
+| sort asc action_file_name 
